@@ -3,6 +3,8 @@
    Imports the base design system from ../style.css
    ============================================ */
 
+@import "../style.css";
+
 /* Force dark theme to apply */
 html {
   height: 100%;
