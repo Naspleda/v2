@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spriter V2 – 2D Rigging & Animation Editor</title>
+  <meta name="description" content="Editor de rigging 2D con Three.js. Agrega esqueletos a imágenes, crea animaciones con keyframes y exporta GIF o video.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./v2.css">
+</head>
+<body>
+  <header id="app-header">
+    <div class="header-content">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="2" width="12" height="12" rx="2" fill="#a78bfa" opacity="0.9"/>
+          <rect x="18" y="2" width="12" height="12" rx="2" fill="#f472b6" opacity="0.7"/>
+          <rect x="2" y="18" width="12" height="12" rx="2" fill="#34d399" opacity="0.7"/>
+          <rect x="18" y="18" width="12" height="12" rx="2" fill="#fbbf24" opacity="0.9"/>
+        </svg>
+        <h1>Spriter <span class="version-badge">V2</span></h1>
+      </div>
+      <p class="subtitle">2D Rigging & Animation Editor</p>
+    </div>
+  </header>
+
+  <div id="editor-container">
+    <!-- ========== VIEWPORT ========== -->
+    <section id="viewport-section">
+      <div id="viewport-wrapper">
+        <canvas id="viewport-canvas"></canvas>
+        <!-- Toolbar overlay -->
+        <div id="viewport-toolbar">
+          <button id="tool-select" class="btn btn-icon tool-btn active" title="Seleccionar (V)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 2l5 14 2-5 5-2L3 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </button>
+          <button id="tool-move" class="btn btn-icon tool-btn" title="Mover (G)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v14M2 9h14M9 2l-2 2M9 2l2 2M9 16l-2-2M9 16l2-2M2 9l2-2M2 9l2 2M16 9l-2-2M16 9l-2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <button id="tool-rotate" class="btn btn-icon tool-btn" title="Rotar (R)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M14 5a6 6 0 11-3-2.5M14 2v3h-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="toolbar-separator"></div>
+          <button id="tool-add-bone" class="btn btn-icon tool-btn" title="Agregar Hueso (B)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="4" cy="4" r="2.5" stroke="currentColor" stroke-width="1.5"/><circle cx="14" cy="14" r="2.5" stroke="currentColor" stroke-width="1.5"/><line x1="5.8" y1="5.8" x2="12.2" y2="12.2" stroke="currentColor" stroke-width="1.5"/><path d="M13 7V4h-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </button>
+          <div class="toolbar-separator"></div>
+          <button id="tool-zoom-in" class="btn btn-icon tool-btn" title="Zoom In">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l4 4M6 8h4M8 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <button id="tool-zoom-out" class="btn btn-icon tool-btn" title="Zoom Out">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M12 12l4 4M6 8h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <button id="tool-zoom-fit" class="btn btn-icon tool-btn" title="Ajustar Vista">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 6V3a1 1 0 011-1h3M12 2h3a1 1 0 011 1v3M16 12v3a1 1 0 01-1 1h-3M6 16H3a1 1 0 01-1-1v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <!-- Upload overlay (shown when no image loaded) -->
+        <div id="upload-overlay" class="drop-zone">
+          <div class="drop-zone-content">
+            <svg class="upload-icon" width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <path d="M24 4L14 16h7v12h6V16h7L24 4z" fill="currentColor" opacity="0.8"/>
+              <path d="M8 34v6a4 4 0 004 4h24a4 4 0 004-4v-6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <h2>Arrastra tu imagen aquí</h2>
+            <p>PNG, JPG, WebP – sprites y personajes 2D</p>
+            <div class="upload-buttons">
+              <button id="btn-upload-image" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="7" r="1.5" fill="currentColor"/><path d="M3 13l4-4 2 2 3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Subir Imagen
+              </button>
+            </div>
+          </div>
+          <input type="file" id="input-image" accept="image/png,image/jpeg,image/webp" hidden>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== RIGHT PANEL ========== -->
+    <aside id="right-panel">
+      <!-- Deformation Mode Toggle -->
+      <section class="panel-section glass-panel">
+        <div class="panel-header">
+          <h2>🔧 Modo</h2>
+        </div>
+        <div class="mode-toggle-group">
+          <button id="mode-rigid" class="btn btn-small mode-btn active">Rigid</button>
+          <button id="mode-mesh" class="btn btn-small mode-btn">Mesh Deform</button>
+        </div>
+        <p class="mode-description" id="mode-description">Transformación rígida: cada sección se mueve como un bloque con su hueso.</p>
+      </section>
+
+      <!-- Skeleton Tools -->
+      <section class="panel-section glass-panel">
+        <div class="panel-header">
+          <h2>🦴 Esqueleto</h2>
+          <span id="bone-count-badge" class="badge">0</span>
+        </div>
+        <div class="skeleton-tools">
+          <button id="btn-add-bone" class="btn btn-small btn-primary">+ Agregar Hueso</button>
+          <button id="btn-delete-bone" class="btn btn-small btn-danger" disabled>Eliminar</button>
+        </div>
+        <!-- Bone list -->
+        <div id="bone-list" class="bone-list">
+          <p class="placeholder-text">Sin huesos. Usa "Agregar Hueso" para comenzar.</p>
+        </div>
+      </section>
+
+      <!-- Bone Properties -->
+      <section id="bone-properties" class="panel-section glass-panel" style="display:none;">
+        <div class="panel-header">
+          <h2>🎨 Propiedades</h2>
+        </div>
+        <div class="controls-grid">
+          <div class="control-group">
+            <label class="control-label">Nombre</label>
+            <div class="input-with-unit">
+              <input type="text" id="prop-bone-name" placeholder="Bone Name">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Rotación</label>
+            <div class="input-with-unit">
+              <input type="number" id="prop-bone-rotation" value="0" step="1">
+              <span class="unit">deg</span>
+            </div>
+            <input type="range" id="slider-bone-rotation" min="-180" max="180" value="0" step="1" class="range-slider">
+          </div>
+          <div class="control-group">
+            <label class="control-label">Longitud</label>
+            <div class="input-with-unit">
+              <input type="number" id="prop-bone-length" value="50" min="5" max="500" step="1">
+              <span class="unit">px</span>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">Parent</label>
+            <select id="prop-bone-parent" class="select-input">
+              <option value="">Ninguno (Root)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Export Settings -->
+      <section class="panel-section glass-panel">
+        <div class="panel-header">
+          <h2>⚙️ Export</h2>
+        </div>
+        <div class="controls-grid">
+          <div class="control-group">
+            <label class="control-label">Resolución</label>
+            <div class="size-inputs">
+              <div class="input-with-unit">
+                <input type="number" id="export-width" value="512" min="1" max="4096" step="1">
+                <span class="unit">W</span>
+              </div>
+              <div class="input-with-unit">
+                <input type="number" id="export-height" value="512" min="1" max="4096" step="1">
+                <span class="unit">H</span>
+              </div>
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label">FPS</label>
+            <div class="input-with-unit">
+              <input type="number" id="export-fps" value="24" min="1" max="60" step="1">
+              <span class="unit">fps</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+    <!-- ========== BOTTOM PANEL – TIMELINE ========== -->
+    <section id="bottom-panel">
+      <div id="timeline-container" class="glass-panel">
+        <!-- Transport Controls -->
+        <div id="timeline-header">
+          <div class="transport-controls">
+            <button id="tl-play" class="btn btn-icon" title="Play">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><polygon points="4,2 16,9 4,16"/></svg>
+            </button>
+            <button id="tl-pause" class="btn btn-icon hidden" title="Pause">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="3" y="2" width="4" height="14"/><rect x="11" y="2" width="4" height="14"/></svg>
+            </button>
+            <button id="tl-stop" class="btn btn-icon" title="Stop">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><rect x="3" y="3" width="12" height="12" rx="1"/></svg>
+            </button>
+            <span id="tl-time-display" class="badge">0:00 / 5:00</span>
+            <span id="tl-frame-display" class="badge small">F: 0 / 120</span>
+          </div>
+          <div class="timeline-settings">
+            <div class="input-with-unit compact">
+              <input type="number" id="tl-duration" value="5" min="1" max="60" step="0.5">
+              <span class="unit">seg</span>
+            </div>
+            <button id="btn-add-keyframe" class="btn btn-small btn-accent" title="Agregar Keyframe al tiempo actual">+ Keyframe</button>
+            <button id="btn-delete-keyframe" class="btn btn-small btn-danger" title="Eliminar keyframe seleccionado">- Keyframe</button>
+          </div>
+          <div class="export-actions">
+            <button id="btn-capture-frame" class="btn btn-small btn-secondary">📸 Capturar Frame</button>
+            <button id="btn-export-gif" class="btn btn-small btn-download">Exportar GIF</button>
+            <button id="btn-export-webm" class="btn btn-small btn-accent">Exportar WebM</button>
+          </div>
+        </div>
+
+        <!-- Timeline Ruler + Playhead -->
+        <div id="timeline-ruler-wrapper">
+          <div id="timeline-track-labels">
+            <!-- Bone track labels go here -->
+          </div>
+          <div id="timeline-ruler-area">
+            <canvas id="timeline-ruler" height="24"></canvas>
+            <div id="playhead" class="playhead">
+              <div class="playhead-head"></div>
+              <div class="playhead-line"></div>
+            </div>
+            <!-- Tracks -->
+            <div id="timeline-tracks">
+              <!-- Bone keyframe tracks rendered here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Captured frames strip -->
+      <div id="captured-frames-panel" class="glass-panel hidden">
+        <div class="panel-header">
+          <h2>🎞️ Frames Capturados <span id="captured-count" class="badge">0</span></h2>
+          <button id="btn-clear-captured" class="btn btn-small btn-danger">Limpiar</button>
+        </div>
+        <div id="captured-strip" class="frames-strip">
+          <p class="placeholder-text">Los frames capturados aparecerán aquí...</p>
+        </div>
+      </div>
+
+      <!-- Progress bar for export -->
+      <div id="export-progress" class="progress-bar hidden">
+        <div id="export-progress-fill" class="progress-fill"></div>
+        <span id="export-progress-text">0%</span>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
